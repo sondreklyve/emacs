@@ -198,6 +198,8 @@
   (setq org-log-done 'time)
   (setq org-log-into-drawer t)
 
+  (setq calendar-week-start-day 1)
+
   (setq org-agenda-files
         '("~/Projects/Org/OrgFiles/Tasks.org"
           "~/Projects/Org/OrgFiles/Habits.org"
@@ -331,9 +333,18 @@
 (org-babel-do-load-languages
   'org-babel-load-languages
   '((emacs-lisp . t)
-    (python . t)))
+    (python . t)
+    (latex . t)))
 
 (push '("conf-unix" . conf-unix) org-src-lang-modes)
+
+;; This is needed as of Org 9.2
+(require 'org-tempo)
+
+(add-to-list 'org-structure-template-alist '("sh" . "src shell"))
+(add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+(add-to-list 'org-structure-template-alist '("py" . "src python"))
+(add-to-list 'org-structure-template-alist '("tex" . "src latex"))
 
 ;; Automatically tangle our Emacs.org config file when we save it
 (defun sondrkly/org-babel-tangle-config ()
@@ -343,6 +354,62 @@
     (let ((org-confirm-babel-evaluate nil))
       (org-babel-tangle))))
 (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'sondrkly/org-babel-tangle-config)))
+
+(use-package yasnippet
+   :ensure t
+   :hook ((text-mode
+           prog-mode
+           conf-mode
+           snippet-mode) . yas-minor-mode-on)
+   :init
+   (setq yas-snippet-dir "~/.emacs.d/snippets"))
+
+(defun efs/lsp-mode-setup ()
+  (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
+  (lsp-headerline-breadcrumb-mode))
+
+(use-package lsp-mode
+  :commands (lsp lsp-deferred)
+  :hook (lsp-mode . efs/lsp-mode-setup)
+  :init
+  (setq lsp-keymap-prefix "C-c l")  ;; Or 'C-l', 's-l'
+  :config
+  (lsp-enable-which-key-integration t))
+
+(use-package lsp-ui
+  :hook (lsp-mode . lsp-ui-mode)
+  :custom
+  (lsp-ui-doc-position 'bottom))
+
+(use-package lsp-treemacs
+  :after lsp)
+
+(use-package lsp-ivy)
+
+(add-to-list 'exec-path "/Home/sondreklyve/.local/bin")  ;; Adds ~/.local/bin to emacs path (quick fix)
+(use-package python-mode
+   :ensure t 
+   :hook (python-mode . lsp-deferred)
+   :custom
+   (python-shell-interpreter "python3"))
+
+(setq exec-path (append exec-path '("/usr/texbin")))
+(load "auctex.el" nil t t)
+(add-hook 'LaTex-mode-hook 'turn-on-reftex)
+
+(use-package company
+  :after lsp-mode
+  :hook (lsp-mode . company-mode)
+  :bind (:map company-active-map
+         ("<tab>" . company-complete-selection))
+        (:map lsp-mode-map
+         ("<tab>" . company-indent-or-complete-common))
+  :custom
+  (company-minimum-prefix-length 1)
+  (company-idle-delay 0.0))
+
+(use-package company-box
+  :hook (company-mode . company-box-mode))
 
 (use-package projectile
   :diminish projectile-mode
