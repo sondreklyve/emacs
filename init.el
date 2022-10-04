@@ -2,8 +2,8 @@
 ;;       in Emacs and init.el will be generated automatically!
 
 ;; You will most likely need to adjust this font size for your system!
-(defvar sondrkly/default-font-size 120)
-(defvar sondrkly/default-variable-font-size 120)
+(defvar sondrkly/default-font-size 140)
+(defvar sondrkly/default-variable-font-size 140)
 
 ;; Initialize package sources
 (require 'package)
