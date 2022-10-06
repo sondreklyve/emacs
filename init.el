@@ -2,8 +2,8 @@
 ;;       in Emacs and init.el will be generated automatically!
 
 ;; You will most likely need to adjust this font size for your system!
-(defvar sondrkly/default-font-size 140)
-(defvar sondrkly/default-variable-font-size 140)
+(defvar sondrkly/default-font-size 120)
+(defvar sondrkly/default-variable-font-size 120)
 
 ;; Initialize package sources
 (require 'package)
@@ -437,3 +437,25 @@
 
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
+
+(use-package dired
+    :ensure nil
+    :commands (dired dired-jump)
+    :bind (("C-x C-j" . dired-jump))
+    :custom ((dired-listing-switches "-Agho --group-directories-first"))
+    :config
+    (evil-collection-define-key 'normal 'dired-mode-map
+        "h" 'dired-single-up-directory
+        "l" 'dired-single-buffer))
+       
+(use-package dired-single)
+
+(use-package all-the-icons-dired
+    :hook (dired-mode . all-the-icons-dired-mode)
+    :config (setq all-the-icons-dired-monochrome nil))
+   
+(use-package dired-hide-dotfiles
+    :hook (dired-mode . dired-hide-dotfiles-mode)
+    :config
+    (evil-collection-define-key 'normal 'dired-mode-map
+      "H" 'dired-hide-dotfiles-mode))
