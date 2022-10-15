@@ -761,6 +761,15 @@ We also use [[https://github.com/sebastiencs/company-box][company-box]] to furth
 
 #+RESULTS:
 | rainbow-delimiters-mode |
+** Keybindings
+
+Set some global keybinds for development
+
+#+begin_src emacs-lisp
+
+(global-set-key [f4] 'compile)
+
+#+end_src
 * File Management
 
 ** Dired

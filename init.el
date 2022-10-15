@@ -438,6 +438,8 @@
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
 
+(global-set-key [f4] 'compile)
+
 (use-package dired
     :ensure nil
     :commands (dired dired-jump)
