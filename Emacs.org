@@ -11,12 +11,18 @@ The following variables are used to tweak some of the configuration pieces for u
 
 #+begin_src emacs-lisp
 
-;; NOTE: init.el is now generated from Emacs.org.  Please edit that file
-;;       in Emacs and init.el will be generated automatically!
+  ;; NOTE: init.el is now generated from Emacs.org.  Please edit that file
+  ;;       in Emacs and init.el will be generated automatically!
 
-;; You will most likely need to adjust this font size for your system!
-(defvar sondrkly/default-font-size 120)
-(defvar sondrkly/default-variable-font-size 120)
+  ;; You will most likely need to adjust this font size for your system!
+  (defvar sondrkly/default-font-size 160)
+  (defvar sondrkly/default-variable-font-size 160)
+
+
+  (setq mac-option-modifier nil) 
+  (setq mac-command-modifier 'meta)
+  (setq mac-control-modifier 'control)
+
 #+end_src
 
 #+RESULTS:
@@ -574,9 +580,25 @@ This snippet adds a hook to =org-mode= buffers so that =sondrkly/org-babel-tangl
 
 #+RESULTS:
 | org-tempo-setup | (lambda nil (add-hook 'after-save-hook #'sondrkly/org-babel-tangle-config)) | org-bullets-mode | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-show-all append local] 5] | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-babel-show-result-all append local] 5] | org-babel-result-hide-spec | org-babel-hide-all-hashes | #[0 \301\211\207 [imenu-create-index-function org-imenu-get-tree] 2] | sondrkly/org-mode-visual-fill | sondrkly/org-mode-setup | (lambda nil (display-line-numbers-mode 0)) |
+|                 |                                                                             |                  |                                                                                              |                                                                                                           |                            |                           |                                                                        |                               |                         |                                            |
 * Development
 
 ** Languages
+
+*** PDF-tools
+
+#+begin_src emacs-lisp
+
+
+(use-package pdf-tools
+   :defer t
+   :config
+       (pdf-tools-install)
+       (setq-default pdf-view-display-size 'fit-page))
+
+
+#+end_src
+
 *** Yasnippets
 
 #+begin_src emacs-lisp
@@ -693,7 +715,6 @@ Try these commands with =M-x=:
 
 Code completion using Corfu
 
-#+begin_src emacs-lisp
 (use-package corfu
   ;; Optional customizations
   :custom
@@ -726,9 +747,6 @@ Code completion using Corfu
                               corfu-quit-no-match t
                               corfu-auto nil)
               (corfu-mode))))
-
-
-#+end_src
 
 ** Company Mode
 
@@ -819,6 +837,7 @@ Set some global keybinds for development
 
 #+end_src
 
+
 * File Management
 
 ** Backup
@@ -838,7 +857,7 @@ Set some global keybinds for development
     :ensure nil
     :commands (dired dired-jump)
     :bind (("C-x C-j" . dired-jump))
-    :custom ((dired-listing-switches "-Agho --group-directories-first"))
+    ;;:custom ((dired-listing-switches "-Agho --group-directories-first"))
     :config
     (evil-collection-define-key 'normal 'dired-mode-map
         "h" 'dired-single-up-directory
@@ -872,3 +891,4 @@ Top comment of EFS ep 10
       :bind (:map dired-mode-map
 		  ("C-c o" . dired-open-file)))
 
+                  

@@ -2,8 +2,13 @@
 ;;       in Emacs and init.el will be generated automatically!
 
 ;; You will most likely need to adjust this font size for your system!
-(defvar sondrkly/default-font-size 120)
-(defvar sondrkly/default-variable-font-size 120)
+(defvar sondrkly/default-font-size 160)
+(defvar sondrkly/default-variable-font-size 160)
+
+
+(setq mac-option-modifier nil) 
+(setq mac-command-modifier 'meta)
+(setq mac-control-modifier 'control)
 
 ;; Initialize package sources
 (require 'package)
@@ -355,6 +360,12 @@
       (org-babel-tangle))))
 (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'sondrkly/org-babel-tangle-config)))
 
+(use-package pdf-tools
+   :defer t
+   :config
+       (pdf-tools-install)
+       (setq-default pdf-view-display-size 'fit-page))
+
 (use-package yasnippet
    :ensure t
    :config
@@ -378,47 +389,19 @@ ac-source-words-in-same-mode-buffers))
 (add-to-list 'exec-path "/Home/sondreklyve/.local/bin")  ;; Adds ~/.local/bin to emacs path (quick fix)
 (use-package python-mode
    :ensure t 
-   ;;:hook (python-mode . lsp-deferred)
+   :hook (python-mode . lsp-deferred)
    :custom
    (python-shell-interpreter "python3"))
+
+(add-hook 'python-mode-hook
+          (lambda ()
+            (set (make-local-variable 'compile-command)
+                 (concat "python3 " buffer-file-name))))
 
 (setq exec-path (append exec-path '("/usr/texbin")))
 (load "auctex.el" nil t t)
 (use-package laas
     :hook (LaTeX-mode . laas-mode))
-
-(use-package corfu
-  ;; Optional customizations
-  :custom
-  (corfu-cycle t)                  ; Allows cycling through candidates
-  (corfu-auto t)                   ; Enable auto completion
-  (corfu-auto-prefix 2)            ; Enable auto completion
-  (corfu-auto-delay 0.0)           ; Enable auto completion
-  (corfu-quit-at-boundary 'separator)
-  (corfu-echo-documentation 0.25)   ; Enable auto completion
-  (corfu-preview-current 'insert)   ; Do not preview current candidate
-  (corfu-preselect-first nil)
-
-  ;; Optionally use TAB for cycling, default is `corfu-complete'.
-  :bind (:map corfu-map
-              ("M-SPC" . corfu-insert-separator)
-              ("TAB"     . corfu-next)
-              ([tab]     . corfu-next)
-              ("S-TAB"   . corfu-previous)
-              ([backtab] . corfu-previous)
-              ("S-<return>" . corfu-insert)
-              ("RET"     . nil) ;; leave my enter alone!
-              )
-
-  :init
-  (global-corfu-mode)
-  (corfu-history-mode)
-  :config
-  (add-hook 'eshell-mode-hook
-            (lambda () (setq-local corfu-quit-at-boundary t
-                              corfu-quit-no-match t
-                              corfu-auto nil)
-              (corfu-mode))))
 
 (use-package projectile
   :diminish projectile-mode
@@ -456,7 +439,7 @@ ac-source-words-in-same-mode-buffers))
     :ensure nil
     :commands (dired dired-jump)
     :bind (("C-x C-j" . dired-jump))
-    :custom ((dired-listing-switches "-Agho --group-directories-first"))
+    ;;:custom ((dired-listing-switches "-Agho --group-directories-first"))
     :config
     (evil-collection-define-key 'normal 'dired-mode-map
         "h" 'dired-single-up-directory
@@ -473,3 +456,16 @@ ac-source-words-in-same-mode-buffers))
     :config
     (evil-collection-define-key 'normal 'dired-mode-map
       "H" 'dired-hide-dotfiles-mode))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(yasnippet-snippets which-key visual-fill-column use-package rainbow-delimiters python-mode python-black pdf-tools org-bullets lsp-ui lsp-treemacs lsp-ivy laas ivy-rich helpful general forge evil-collection doom-themes doom-modeline dired-single dired-hide-dotfiles counsel-projectile company-box command-log-mode auto-complete all-the-icons-dired)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
