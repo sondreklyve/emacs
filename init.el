@@ -357,59 +357,66 @@
 
 (use-package yasnippet
    :ensure t
-   :hook ((text-mode
-           prog-mode
-           conf-mode
-           snippet-mode) . yas-minor-mode-on)
-   :init
-   (setq yas-snippet-dir "~/.emacs.d/snippets"))
+   :config
+   (setq yas-snippet-dirs '("~/.emacs.d/elpa/yasnippet-snippets-20220713.1234/snippets"))
+   (yas-global-mode 1))
 
-(defun efs/lsp-mode-setup ()
-  (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
-  (lsp-headerline-breadcrumb-mode))
-
-(use-package lsp-mode
-  :commands (lsp lsp-deferred)
-  :hook (lsp-mode . efs/lsp-mode-setup)
-  :init
-  (setq lsp-keymap-prefix "C-c l")  ;; Or 'C-l', 's-l'
-  :config
-  (lsp-enable-which-key-integration t))
-
-(use-package lsp-ui
-  :hook (lsp-mode . lsp-ui-mode)
-  :custom
-  (lsp-ui-doc-position 'bottom))
-
-(use-package lsp-treemacs
-  :after lsp)
-
-(use-package lsp-ivy)
 
 (add-to-list 'exec-path "/Home/sondreklyve/.local/bin")  ;; Adds ~/.local/bin to emacs path (quick fix)
 (use-package python-mode
-   :ensure t 
-   :hook (python-mode . lsp-deferred)
+   :ensure t
+   ;;:hook (python-mode . lsp-deferred)
    :custom
    (python-shell-interpreter "python3"))
 
 (setq exec-path (append exec-path '("/usr/texbin")))
 (load "auctex.el" nil t t)
-(add-hook 'LaTex-mode-hook 'turn-on-reftex)
+(use-package laas
+    :hook (LaTeX-mode . laas-mode))
 
-(use-package company
-  :after lsp-mode
-  :hook (lsp-mode . company-mode)
-  :bind (:map company-active-map
-         ("<tab>" . company-complete-selection))
-        (:map lsp-mode-map
-         ("<tab>" . company-indent-or-complete-common))
+;; (package-install 'auto-complete)
+;; (require 'auto-complete)
+;; (setq ac-dwim t)
+;; (ac-config-default)
+;; (setq ac-sources '(ac-source-yasnippet
+;; ac-source-abbrev
+;; ac-source-words-in-same-mode-buffers))
+
+;; (setq ac-auto-start nil)
+;; (ac-set-trigger-key "TAB")
+
+(use-package corfu
+  ;; Optional customizations
   :custom
-  (company-minimum-prefix-length 1)
-  (company-idle-delay 0.0))
+  (corfu-cycle t)                  ; Allows cycling through candidates
+  (corfu-auto t)                   ; Enable auto completion
+  (corfu-auto-prefix 2)            ; Enable auto completion
+  (corfu-auto-delay 0.0)           ; Enable auto completion
+  (corfu-quit-at-boundary 'separator)
+  (corfu-echo-documentation 0.25)   ; Enable auto completion
+  (corfu-preview-current 'insert)   ; Do not preview current candidate
+  (corfu-preselect-first nil)
 
-(use-package company-box
-  :hook (company-mode . company-box-mode))
+  ;; Optionally use TAB for cycling, default is `corfu-complete'.
+  :bind (:map corfu-map
+              ("M-SPC" . corfu-insert-separator)
+              ("TAB"     . corfu-next)
+              ([tab]     . corfu-next)
+              ("S-TAB"   . corfu-previous)
+              ([backtab] . corfu-previous)
+              ("S-<return>" . corfu-insert)
+              ("RET"     . nil) ;; leave my enter alone!
+              )
+
+  :init
+  (global-corfu-mode)
+  (corfu-history-mode)
+  :config
+  (add-hook 'eshell-mode-hook
+            (lambda () (setq-local corfu-quit-at-boundary t
+                              corfu-quit-no-match t
+                              corfu-auto nil)
+              (corfu-mode))))
 
 (use-package projectile
   :diminish projectile-mode
@@ -440,6 +447,9 @@
 
 (global-set-key [f4] 'compile)
 
+(setq backup-directory-alist `(("." . "~/.emacs.d/backup")))
+(setq backup-by-copying t)
+
 (use-package dired
     :ensure nil
     :commands (dired dired-jump)
@@ -461,3 +471,16 @@
     :config
     (evil-collection-define-key 'normal 'dired-mode-map
       "H" 'dired-hide-dotfiles-mode))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(auto-complete yasnippet-snippets yasnippet-classic-snippets which-key visual-fill-column use-package rainbow-delimiters python-mode python-isort python-black pdf-tools org-bullets math-symbol-lists lsp-ui lsp-treemacs lsp-latex lsp-ivy latex-preview-pane latex-math-preview laas ivy-yasnippet ivy-rich helpful general forge flycheck exec-path-from-shell evil-collection doom-themes doom-modeline dired-single dired-hide-dotfiles counsel-projectile corfu company-box command-log-mode auctex-latexmk all-the-icons-dired)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

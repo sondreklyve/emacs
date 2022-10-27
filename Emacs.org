@@ -582,12 +582,27 @@ This snippet adds a hook to =org-mode= buffers so that =sondrkly/org-babel-tangl
 #+begin_src emacs-lisp
 (use-package yasnippet
    :ensure t
-   :hook ((text-mode
-           prog-mode
-           conf-mode
-           snippet-mode) . yas-minor-mode-on)
-   :init
-   (setq yas-snippet-dir "~/.emacs.d/snippets"))
+   :config
+   (setq yas-snippet-dirs '("~/.emacs.d/elpa/yasnippet-snippets-20220713.1234/snippets"))
+   (yas-global-mode 1))
+
+(defun add-yasnippet-ac-sources ()
+  (add-to-list 'ac-sources 'ac-source-yasnippet))
+#+end_src
+
+*** Auto Completion
+
+#+begin_src emacs-lisp
+(package-install 'auto-complete)
+(require 'auto-complete)
+(setq ac-dwim t)
+(ac-config-default)
+(setq ac-sources '(ac-source-yasnippet
+ac-source-abbrev
+ac-source-words-in-same-mode-buffers))
+
+(setq ac-auto-start nil)
+(ac-set-trigger-key "TAB")
 #+end_src
 
 *** IDE Features with lsp-mode
@@ -600,7 +615,6 @@ The =lsp-keymap-prefix= setting enables you to define a prefix for where =lsp-mo
 
 The =which-key= integration adds helpful descriptions of the various keys so you should be able to learn a lot just by pressing =C-c l= in a =lsp-mode= buffer and trying different things that you find there.
 
-#+begin_src emacs-lisp
 
   (defun efs/lsp-mode-setup ()
     (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
@@ -614,20 +628,17 @@ The =which-key= integration adds helpful descriptions of the various keys so you
     :config
     (lsp-enable-which-key-integration t))
 
-#+end_src
 
 **** lsp-ui
 
 [[https://emacs-lsp.github.io/lsp-ui/][lsp-ui]] is a set of UI enhancements built on top of =lsp-mode= which make Emacs feel even more like an IDE.  Check out the screenshots on the =lsp-ui= homepage (linked at the beginning of this paragraph) to see examples of what it can do.
 
-#+begin_src emacs-lisp
 
   (use-package lsp-ui
     :hook (lsp-mode . lsp-ui-mode)
     :custom
     (lsp-ui-doc-position 'bottom))
 
-#+end_src
 
 **** lsp-treemacs
 
@@ -641,13 +652,11 @@ Try these commands with =M-x=:
 
 This package is built on the [[https://github.com/Alexander-Miller/treemacs][treemacs]] package which might be of some interest to you if you like to have a file browser at the left side of your screen in your editor.
 
-#+begin_src emacs-lisp
 
   (use-package lsp-treemacs
     :after lsp)
 
-#+end_src
-
+    
 **** lsp-ivy
 
 [[https://github.com/emacs-lsp/lsp-ivy][lsp-ivy]] integrates Ivy with =lsp-mode= to make it easy to search for things by name in your code.  When you run these commands, a prompt will appear in the minibuffer allowing you to type part of the name of a symbol in your code.  Results will be populated in the minibuffer so that you can find what you're looking for and jump to that location in the code upon selecting the result.
@@ -657,11 +666,8 @@ Try these commands with =M-x=:
 - =lsp-ivy-workspace-symbol= - Search for a symbol name in the current project workspace
 - =lsp-ivy-global-workspace-symbol= - Search for a symbol name in all active project workspaces
 
-#+begin_src emacs-lisp
 
   (use-package lsp-ivy)
-
-#+end_src
 
 *** Python
 
@@ -669,24 +675,66 @@ Try these commands with =M-x=:
 (add-to-list 'exec-path "/Home/sondreklyve/.local/bin")  ;; Adds ~/.local/bin to emacs path (quick fix)
 (use-package python-mode
    :ensure t 
-   :hook (python-mode . lsp-deferred)
+   ;;:hook (python-mode . lsp-deferred)
    :custom
    (python-shell-interpreter "python3"))
 #+end_src
+
 *** LaTeX
 
 #+begin_src emacs-lisp
 (setq exec-path (append exec-path '("/usr/texbin")))
 (load "auctex.el" nil t t)
-(add-hook 'LaTex-mode-hook 'turn-on-reftex)
+(use-package laas
+    :hook (LaTeX-mode . laas-mode))
 #+end_src
+
+** Corfu
+
+Code completion using Corfu
+
+#+begin_src emacs-lisp
+(use-package corfu
+  ;; Optional customizations
+  :custom
+  (corfu-cycle t)                  ; Allows cycling through candidates
+  (corfu-auto t)                   ; Enable auto completion
+  (corfu-auto-prefix 2)            ; Enable auto completion
+  (corfu-auto-delay 0.0)           ; Enable auto completion
+  (corfu-quit-at-boundary 'separator)
+  (corfu-echo-documentation 0.25)   ; Enable auto completion
+  (corfu-preview-current 'insert)   ; Do not preview current candidate
+  (corfu-preselect-first nil)
+
+  ;; Optionally use TAB for cycling, default is `corfu-complete'.
+  :bind (:map corfu-map
+              ("M-SPC" . corfu-insert-separator)
+              ("TAB"     . corfu-next)
+              ([tab]     . corfu-next)
+              ("S-TAB"   . corfu-previous)
+              ([backtab] . corfu-previous)
+              ("S-<return>" . corfu-insert)
+              ("RET"     . nil) ;; leave my enter alone!
+              )
+
+  :init
+  (global-corfu-mode)
+  (corfu-history-mode)
+  :config
+  (add-hook 'eshell-mode-hook
+            (lambda () (setq-local corfu-quit-at-boundary t
+                              corfu-quit-no-match t
+                              corfu-auto nil)
+              (corfu-mode))))
+
+#+end_src
+
 ** Company Mode
 
 [[http://company-mode.github.io/][Company Mode]] provides a nicer in-buffer completion interface than =completion-at-point= which is more reminiscent of what you would expect from an IDE.  We add a simple configuration to make the keybindings a little more useful (=TAB= now completes the selection and initiates completion at the current location if needed).
 
 We also use [[https://github.com/sebastiencs/company-box][company-box]] to further enhance the look of the completions with icons and better overall presentation.
 
-#+begin_src emacs-lisp
 
   (use-package company
     :after lsp-mode
@@ -702,7 +750,6 @@ We also use [[https://github.com/sebastiencs/company-box][company-box]] to furth
   (use-package company-box
     :hook (company-mode . company-box-mode))
 
-#+end_src
 ** Projectile
 
 [[https://projectile.mx/][Projectile]] is a project management library for Emacs which makes it a lot easier to navigate around code projects for various languages.  Many packages integrate with Projectile so it's a good idea to have it installed even if you don't use its commands directly.
@@ -770,7 +817,17 @@ Set some global keybinds for development
 (global-set-key [f4] 'compile)
 
 #+end_src
+
 * File Management
+
+** Backup
+
+#+begin_src emacs-lisp
+
+(setq backup-directory-alist `(("." . "~/.emacs.d/backup")))
+(setq backup-by-copying t)
+
+#+end_src
 
 ** Dired
 
@@ -814,18 +871,3 @@ Top comment of EFS ep 10
       :bind (:map dired-mode-map
 		  ("C-c o" . dired-open-file)))
 
-* Applications
-
-** Some App
-
-This is an example of configuring another non-Emacs application using org-mode.  Not only do we write out the configuration at =.config/some-app/config=, we also compute the value that gets stored in this configuration from the Emacs Lisp block above it.
-
-#+NAME: the-value
-#+begin_src emacs-lisp :tangle no
- 
-  (+ 55 100)
-
-#+end_src
-
-#+RESULTS: the-value
-: 155
