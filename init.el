@@ -361,10 +361,23 @@
    (setq yas-snippet-dirs '("~/.emacs.d/elpa/yasnippet-snippets-20220713.1234/snippets"))
    (yas-global-mode 1))
 
+(defun add-yasnippet-ac-sources ()
+  (add-to-list 'ac-sources 'ac-source-yasnippet))
+
+(package-install 'auto-complete)
+(require 'auto-complete)
+(setq ac-dwim t)
+(ac-config-default)
+(setq ac-sources '(ac-source-yasnippet
+ac-source-abbrev
+ac-source-words-in-same-mode-buffers))
+
+(setq ac-auto-start nil)
+(ac-set-trigger-key "TAB")
 
 (add-to-list 'exec-path "/Home/sondreklyve/.local/bin")  ;; Adds ~/.local/bin to emacs path (quick fix)
 (use-package python-mode
-   :ensure t
+   :ensure t 
    ;;:hook (python-mode . lsp-deferred)
    :custom
    (python-shell-interpreter "python3"))
@@ -373,17 +386,6 @@
 (load "auctex.el" nil t t)
 (use-package laas
     :hook (LaTeX-mode . laas-mode))
-
-;; (package-install 'auto-complete)
-;; (require 'auto-complete)
-;; (setq ac-dwim t)
-;; (ac-config-default)
-;; (setq ac-sources '(ac-source-yasnippet
-;; ac-source-abbrev
-;; ac-source-words-in-same-mode-buffers))
-
-;; (setq ac-auto-start nil)
-;; (ac-set-trigger-key "TAB")
 
 (use-package corfu
   ;; Optional customizations
@@ -471,16 +473,3 @@
     :config
     (evil-collection-define-key 'normal 'dired-mode-map
       "H" 'dired-hide-dotfiles-mode))
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(auto-complete yasnippet-snippets yasnippet-classic-snippets which-key visual-fill-column use-package rainbow-delimiters python-mode python-isort python-black pdf-tools org-bullets math-symbol-lists lsp-ui lsp-treemacs lsp-latex lsp-ivy latex-preview-pane latex-math-preview laas ivy-yasnippet ivy-rich helpful general forge flycheck exec-path-from-shell evil-collection doom-themes doom-modeline dired-single dired-hide-dotfiles counsel-projectile corfu company-box command-log-mode auctex-latexmk all-the-icons-dired)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )

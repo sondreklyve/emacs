@@ -727,6 +727,7 @@ Code completion using Corfu
                               corfu-auto nil)
               (corfu-mode))))
 
+
 #+end_src
 
 ** Company Mode
