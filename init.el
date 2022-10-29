@@ -71,7 +71,10 @@
 
   (sondrkly/leader-keys
     "t"  '(:ignore t :which-key "toggles")
-    "tt" '(counsel-load-theme :which-key "choose theme")))
+    "tt" '(counsel-load-theme :which-key "choose theme")
+    "c"  '(:which-key "code compilation")
+    "cc" '(recompile :which-key "compile code")
+    "ce" '(compile :which-key "edit compile call")))
 
 (use-package evil
   :init
@@ -389,14 +392,9 @@ ac-source-words-in-same-mode-buffers))
 (add-to-list 'exec-path "/Home/sondreklyve/.local/bin")  ;; Adds ~/.local/bin to emacs path (quick fix)
 (use-package python-mode
    :ensure t 
-   :hook (python-mode . lsp-deferred)
+   ;;:hook (python-mode . lsp-deferred)
    :custom
    (python-shell-interpreter "python3"))
-
-(add-hook 'python-mode-hook
-          (lambda ()
-            (set (make-local-variable 'compile-command)
-                 (concat "python3 " buffer-file-name))))
 
 (setq exec-path (append exec-path '("/usr/texbin")))
 (load "auctex.el" nil t t)
@@ -430,13 +428,12 @@ ac-source-words-in-same-mode-buffers))
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
 
-(global-set-key [f4] 'compile)
-
 (setq backup-directory-alist `(("." . "~/.emacs.d/backup")))
 (setq backup-by-copying t)
 
 (use-package dired
     :ensure nil
+    :hook (dired-mode . dired-hide-details-mode)
     :commands (dired dired-jump)
     :bind (("C-x C-j" . dired-jump))
     ;;:custom ((dired-listing-switches "-Agho --group-directories-first"))
@@ -444,18 +441,26 @@ ac-source-words-in-same-mode-buffers))
     (evil-collection-define-key 'normal 'dired-mode-map
         "h" 'dired-single-up-directory
         "l" 'dired-single-buffer))
-       
+
 (use-package dired-single)
 
 (use-package all-the-icons-dired
     :hook (dired-mode . all-the-icons-dired-mode)
     :config (setq all-the-icons-dired-monochrome nil))
-   
+
 (use-package dired-hide-dotfiles
     :hook (dired-mode . dired-hide-dotfiles-mode)
     :config
     (evil-collection-define-key 'normal 'dired-mode-map
       "H" 'dired-hide-dotfiles-mode))
+
+(defun sondrkly/dired-mode-visual-fill ()
+  (setq visual-fill-column-width 100
+        visual-fill-column-center-text t)
+  (visual-fill-column-mode 1))
+
+(use-package visual-fill-column
+  :hook (dired-mode . sondrkly/dired-mode-visual-fill))
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

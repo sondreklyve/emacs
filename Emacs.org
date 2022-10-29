@@ -130,7 +130,10 @@ This configuration uses [[https://evil.readthedocs.io/en/latest/index.html][evil
 
     (sondrkly/leader-keys
       "t"  '(:ignore t :which-key "toggles")
-      "tt" '(counsel-load-theme :which-key "choose theme")))
+      "tt" '(counsel-load-theme :which-key "choose theme")
+      "c"  '(:which-key "code compilation")
+      "cc" '(recompile :which-key "compile code")
+      "ce" '(compile :which-key "edit compile call")))
 
   (use-package evil
     :init
@@ -582,7 +585,6 @@ This snippet adds a hook to =org-mode= buffers so that =sondrkly/org-babel-tangl
 | org-tempo-setup | (lambda nil (add-hook 'after-save-hook #'sondrkly/org-babel-tangle-config)) | org-bullets-mode | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-show-all append local] 5] | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-babel-show-result-all append local] 5] | org-babel-result-hide-spec | org-babel-hide-all-hashes | #[0 \301\211\207 [imenu-create-index-function org-imenu-get-tree] 2] | sondrkly/org-mode-visual-fill | sondrkly/org-mode-setup | (lambda nil (display-line-numbers-mode 0)) |
 |                 |                                                                             |                  |                                                                                              |                                                                                                           |                            |                           |                                                                        |                               |                         |                                            |
 * Development
-
 ** Languages
 
 *** PDF-tools
@@ -827,17 +829,6 @@ We also use [[https://github.com/sebastiencs/company-box][company-box]] to furth
 
 #+RESULTS:
 | rainbow-delimiters-mode |
-** Keybindings
-
-Set some global keybinds for development
-
-#+begin_src emacs-lisp
-
-(global-set-key [f4] 'compile)
-
-#+end_src
-
-
 * File Management
 
 ** Backup
@@ -853,27 +844,42 @@ Set some global keybinds for development
 
 #+begin_src emacs-lisp
 
-(use-package dired
-    :ensure nil
-    :commands (dired dired-jump)
-    :bind (("C-x C-j" . dired-jump))
-    ;;:custom ((dired-listing-switches "-Agho --group-directories-first"))
-    :config
-    (evil-collection-define-key 'normal 'dired-mode-map
-        "h" 'dired-single-up-directory
-        "l" 'dired-single-buffer))
-       
-(use-package dired-single)
+  (use-package dired
+      :ensure nil
+      :hook (dired-mode . dired-hide-details-mode)
+      :commands (dired dired-jump)
+      :bind (("C-x C-j" . dired-jump))
+      ;;:custom ((dired-listing-switches "-Agho --group-directories-first"))
+      :config
+      (evil-collection-define-key 'normal 'dired-mode-map
+          "h" 'dired-single-up-directory
+          "l" 'dired-single-buffer))
 
-(use-package all-the-icons-dired
-    :hook (dired-mode . all-the-icons-dired-mode)
-    :config (setq all-the-icons-dired-monochrome nil))
-   
-(use-package dired-hide-dotfiles
-    :hook (dired-mode . dired-hide-dotfiles-mode)
-    :config
-    (evil-collection-define-key 'normal 'dired-mode-map
-      "H" 'dired-hide-dotfiles-mode))
+  (use-package dired-single)
+
+  (use-package all-the-icons-dired
+      :hook (dired-mode . all-the-icons-dired-mode)
+      :config (setq all-the-icons-dired-monochrome nil))
+
+  (use-package dired-hide-dotfiles
+      :hook (dired-mode . dired-hide-dotfiles-mode)
+      :config
+      (evil-collection-define-key 'normal 'dired-mode-map
+        "H" 'dired-hide-dotfiles-mode))
+
+#+end_src
+
+Center dired. Useful in dired-hide-details-mode, when the buffer is quite narrow.
+
+#+begin_src emacs-lisp
+
+  (defun sondrkly/dired-mode-visual-fill ()
+    (setq visual-fill-column-width 200
+          visual-fill-column-center-text t)
+    (visual-fill-column-mode 1))
+
+  (use-package visual-fill-column
+    :hook (dired-mode . sondrkly/dired-mode-visual-fill))
 
 #+end_src
 
@@ -891,4 +897,5 @@ Top comment of EFS ep 10
       :bind (:map dired-mode-map
 		  ("C-c o" . dired-open-file)))
 
+                  
                   
